@@ -4,12 +4,13 @@ import { getProducts } from "@/actions/products";
 import { getCartCount } from "@/actions/cart";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
+import { HeroCarousel } from "@/components/home/hero-carousel";
 import { ProductGrid } from "@/components/products/product-grid";
 import { ProductFilters } from "@/components/products/product-filters";
 import { SearchBar } from "@/components/products/search-bar";
 import { ProductGridSkeleton } from "@/components/shared/loading-skeleton";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Truck, Shield, CreditCard } from "lucide-react";
+import { Truck, Shield, CreditCard, Sparkles } from "lucide-react";
 import Link from "next/link";
 import type { ProductFilters as Filters } from "@/types";
 
@@ -45,8 +46,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       <Navbar cartCount={cartCount} />
 
       <main className="flex-1">
-        {/* Hero Section */}
-        {!hasFilters && <HeroSection />}
+        {/* Hero Carousel */}
+        {!hasFilters && <HeroCarousel />}
 
         {/* Products Section */}
         <section id="products" className="py-8 sm:py-12 lg:py-16">
@@ -110,77 +111,94 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   );
 }
 
-function HeroSection() {
-  return (
-    <section className="bg-surface-2/50 border-b border-border">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
-        <div className="text-center max-w-2xl mx-auto">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
-            Premium Crypto
-            <span className="text-primary"> Swag</span>
-          </h1>
-          <p className="mt-4 text-base sm:text-lg text-muted-foreground max-w-lg mx-auto">
-            Rep your favorite chains with style. High-quality merch,
-            pay with crypto via Kira-Pay.
-          </p>
-          <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="#products">
-              <Button size="lg" className="w-full sm:w-auto">
-                Shop Now
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-            {/* <Link href="/login">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                Sign In
-              </Button>
-            </Link> */}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function FeaturesSection() {
   const features = [
     {
       icon: CreditCard,
       title: "Pay with Crypto",
-      description: "ETH, USDC, USDT via Kira-Pay",
+      description: "ETH, USDC, USDT accepted via Kira-Pay integration",
+      color: "primary",
     },
     {
       icon: Shield,
       title: "Secure Checkout",
-      description: "Enterprise-grade security",
+      description: "Enterprise-grade security for every transaction",
+      color: "accent",
     },
     {
       icon: Truck,
-      title: "Fast Shipping",
-      description: "Worldwide delivery",
+      title: "Global Shipping",
+      description: "Fast worldwide delivery to your doorstep",
+      color: "secondary",
+    },
+    {
+      icon: Sparkles,
+      title: "Premium Quality",
+      description: "High-quality materials and unique designs",
+      color: "primary",
     },
   ];
 
+  const colorMap = {
+    primary: { bg: "bg-primary-light", icon: "text-primary", border: "border-primary/20" },
+    accent: { bg: "bg-accent-light", icon: "text-accent", border: "border-accent/20" },
+    secondary: { bg: "bg-secondary-light", icon: "text-secondary", border: "border-secondary/20" },
+  };
+
   return (
-    <section className="border-t border-border bg-surface-1">
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-8">
-          {features.map((feature) => (
-            <div
-              key={feature.title}
-              className="flex items-center gap-4 sm:flex-col sm:text-center sm:gap-3"
-            >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-light">
-                <feature.icon className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold">{feature.title}</h3>
-                <p className="text-sm text-muted-foreground mt-0.5">
+    <section className="relative overflow-hidden border-t border-border bg-gradient-to-b from-surface-1 to-background">
+      {/* Background decoration */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
+
+      <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
+        {/* Section Header */}
+        <div className="text-center mb-10 sm:mb-12">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-3">
+            Why Shop With <span className="text-primary">SwagChain</span>?
+          </h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            The best crypto merchandise store with seamless payment experience
+          </p>
+        </div>
+
+        {/* Features Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {features.map((feature) => {
+            const colors = colorMap[feature.color as keyof typeof colorMap];
+            return (
+              <div
+                key={feature.title}
+                className={`group relative bg-white rounded-2xl p-6 border ${colors.border} shadow-sm hover:shadow-lg transition-all duration-300 hover-lift`}
+              >
+                {/* Icon */}
+                <div className={`inline-flex h-14 w-14 items-center justify-center rounded-xl ${colors.bg} mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                  <feature.icon className={`h-7 w-7 ${colors.icon}`} />
+                </div>
+
+                {/* Content */}
+                <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
                   {feature.description}
                 </p>
+
+                {/* Decorative corner */}
+                <div className={`absolute top-0 right-0 w-16 h-16 ${colors.bg} opacity-50 rounded-bl-3xl rounded-tr-2xl -z-10`} />
               </div>
-            </div>
-          ))}
+            );
+          })}
+        </div>
+
+        {/* Bottom CTA */}
+        <div className="mt-12 text-center">
+          <p className="text-muted-foreground mb-4">
+            Ready to get your crypto swag?
+          </p>
+          <Link href="#products">
+            <Button size="lg" variant="outline" className="border-2">
+              Browse Collection
+            </Button>
+          </Link>
         </div>
       </div>
     </section>
