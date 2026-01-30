@@ -5,7 +5,6 @@ import Image from "next/image";
 import { Clock, CheckCircle2, Truck, Package, MapPin, User } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
   Select,
@@ -50,7 +49,7 @@ interface AdminOrdersTableProps {
 
 export function AdminOrdersTable({ orders }: AdminOrdersTableProps) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {orders.map((order) => (
         <AdminOrderCard key={order.id} order={order} />
       ))}
@@ -89,24 +88,24 @@ function AdminOrderCard({ order }: { order: AdminOrder }) {
   return (
     <Card className="overflow-hidden">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-surface-2/50 p-4">
-        <div className="flex items-center gap-6">
-          <div className="space-y-1">
-            <p className="text-sm text-muted-foreground">Order ID</p>
-            <p className="font-mono text-sm">{order.id.slice(0, 12)}...</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-muted/50 p-3 sm:p-4">
+        <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+          <div className="space-y-0.5 sm:space-y-1">
+            <p className="text-xs sm:text-sm text-muted-foreground">Order ID</p>
+            <p className="font-mono text-xs sm:text-sm">{order.id.slice(0, 12)}...</p>
           </div>
-          <div className="space-y-1">
-            <p className="text-sm text-muted-foreground">Date</p>
-            <p className="text-sm">{formatDateTime(order.createdAt)}</p>
+          <div className="space-y-0.5 sm:space-y-1 hidden sm:block">
+            <p className="text-xs sm:text-sm text-muted-foreground">Date</p>
+            <p className="text-xs sm:text-sm">{formatDateTime(order.createdAt)}</p>
           </div>
-          <div className="space-y-1">
-            <p className="text-sm text-muted-foreground">Total</p>
-            <p className="font-bold gradient-text">{formatPrice(order.totalAmount)}</p>
+          <div className="space-y-0.5 sm:space-y-1">
+            <p className="text-xs sm:text-sm text-muted-foreground">Total</p>
+            <p className="font-bold text-primary text-sm sm:text-base">{formatPrice(order.totalAmount)}</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <Badge variant={config.variant} className="gap-1">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <Badge variant={config.variant} className="gap-1 text-xs">
             <StatusIcon className="h-3 w-3" />
             {config.label}
           </Badge>
@@ -116,7 +115,7 @@ function AdminOrderCard({ order }: { order: AdminOrder }) {
             onValueChange={(value) => handleStatusChange(value as OrderStatus)}
             disabled={isPending}
           >
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="w-32 sm:w-40 h-9">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -133,27 +132,27 @@ function AdminOrderCard({ order }: { order: AdminOrder }) {
       <Separator />
 
       {/* Customer & Items */}
-      <div className="p-4 grid gap-6 md:grid-cols-2">
+      <div className="p-3 sm:p-4 grid gap-4 sm:gap-6 md:grid-cols-2">
         {/* Customer Info */}
         <div>
-          <h4 className="font-semibold mb-3 flex items-center gap-2">
+          <h4 className="font-semibold mb-2 sm:mb-3 flex items-center gap-2 text-sm sm:text-base text-foreground">
             <User className="h-4 w-4" />
             Customer
           </h4>
-          <p className="text-sm">
+          <p className="text-xs sm:text-sm">
             <span className="text-muted-foreground">Name:</span>{" "}
-            {order.user.name || "N/A"}
+            <span className="text-foreground">{order.user.name || "N/A"}</span>
           </p>
-          <p className="text-sm">
+          <p className="text-xs sm:text-sm">
             <span className="text-muted-foreground">Email:</span>{" "}
-            {order.user.email || "N/A"}
+            <span className="text-foreground">{order.user.email || "N/A"}</span>
           </p>
 
-          <h4 className="font-semibold mt-4 mb-2 flex items-center gap-2">
+          <h4 className="font-semibold mt-3 sm:mt-4 mb-2 flex items-center gap-2 text-sm sm:text-base text-foreground">
             <MapPin className="h-4 w-4" />
             Shipping Address
           </h4>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             {order.address.fullName}
             <br />
             {order.address.street}
@@ -166,14 +165,14 @@ function AdminOrderCard({ order }: { order: AdminOrder }) {
 
         {/* Items */}
         <div>
-          <h4 className="font-semibold mb-3 flex items-center gap-2">
+          <h4 className="font-semibold mb-2 sm:mb-3 flex items-center gap-2 text-sm sm:text-base text-foreground">
             <Package className="h-4 w-4" />
             Items ({order.items.length})
           </h4>
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {order.items.map((item) => (
-              <div key={item.id} className="flex items-center gap-3">
-                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-surface-2">
+              <div key={item.id} className="flex items-center gap-2 sm:gap-3">
+                <div className="relative h-10 w-10 sm:h-12 sm:w-12 shrink-0 overflow-hidden rounded-lg bg-muted">
                   {item.product.images[0] ? (
                     <Image
                       src={item.product.images[0]}
@@ -183,17 +182,17 @@ function AdminOrderCard({ order }: { order: AdminOrder }) {
                     />
                   ) : (
                     <div className="flex h-full items-center justify-center">
-                      <Package className="h-4 w-4 text-surface-3" />
+                      <Package className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground/30" />
                     </div>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{item.product.name}</p>
+                  <p className="text-xs sm:text-sm font-medium truncate text-foreground">{item.product.name}</p>
                   <p className="text-xs text-muted-foreground">
                     {item.quantity} × {formatPrice(item.price)}
                   </p>
                 </div>
-                <p className="text-sm font-semibold">
+                <p className="text-xs sm:text-sm font-semibold text-foreground shrink-0">
                   {formatPrice(item.price * item.quantity)}
                 </p>
               </div>

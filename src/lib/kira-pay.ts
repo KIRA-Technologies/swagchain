@@ -25,6 +25,12 @@ export async function createPaymentLink(
   params: CreatePaymentLinkParams
 ): Promise<PaymentLinkResponse> {
   try {
+    console.log("[Kira-Pay] Creating payment link:", {
+      url: `${KIRA_PAY_API_URL}/api/link/generate`,
+      price: params.price,
+      customOrderId: params.customOrderId,
+    });
+
     const response = await fetch(`${KIRA_PAY_API_URL}/api/link/generate`, {
       method: "POST",
       headers: {
@@ -39,8 +45,11 @@ export async function createPaymentLink(
       }),
     });
 
+    console.log("[Kira-Pay] Response status:", response.status);
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+      console.error("[Kira-Pay] Error response:", errorData);
       return {
         success: false,
         error: errorData.message || `HTTP error: ${response.status}`,
@@ -48,11 +57,20 @@ export async function createPaymentLink(
     }
 
     const data = await response.json();
+    console.log("[Kira-Pay] Success response:", JSON.stringify(data, null, 2));
+
+    // Extract URL from various possible response formats
+    const paymentUrl = data.url || data.paymentUrl || data.link?.url || data.data?.url;
+    const linkId = data.id || data.linkId || data.link?.id || data.data?.id;
+
+    console.log("[Kira-Pay] Extracted URL:", paymentUrl);
+    console.log("[Kira-Pay] Extracted ID:", linkId);
+
     return {
       success: true,
       data: {
-        id: data.id || data.linkId,
-        url: data.url || data.paymentUrl,
+        id: linkId,
+        url: paymentUrl,
         price: params.price,
         customOrderId: params.customOrderId,
         type: "single_use",

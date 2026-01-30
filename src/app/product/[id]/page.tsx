@@ -28,24 +28,24 @@ export default async function ProductPage({ params }: ProductPageProps) {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background">
       <Navbar cartCount={cartCount} />
 
       <main className="flex-1">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 py-6 sm:py-8 sm:px-6 lg:px-8">
           {/* Breadcrumb */}
           <Link
             href="/"
-            className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-8"
+            className="inline-flex items-center text-sm text-muted-foreground hover:text-primary transition-colors mb-6 sm:mb-8"
           >
             <ChevronLeft className="mr-1 h-4 w-4" />
             Back to Products
           </Link>
 
-          <div className="grid gap-12 lg:grid-cols-2">
+          <div className="grid gap-8 lg:gap-12 lg:grid-cols-2">
             {/* Product Images */}
-            <div className="space-y-4">
-              <div className="relative aspect-square overflow-hidden rounded-2xl border border-border bg-surface-1">
+            <div className="space-y-3 sm:space-y-4">
+              <div className="relative aspect-square overflow-hidden rounded-xl sm:rounded-2xl border border-border bg-white">
                 {product.images[0] ? (
                   <Image
                     src={product.images[0]}
@@ -55,19 +55,19 @@ export default async function ProductPage({ params }: ProductPageProps) {
                     priority
                   />
                 ) : (
-                  <div className="flex h-full items-center justify-center">
-                    <ShoppingCart className="h-24 w-24 text-surface-3" />
+                  <div className="flex h-full items-center justify-center bg-muted">
+                    <ShoppingCart className="h-16 w-16 sm:h-24 sm:w-24 text-muted-foreground/30" />
                   </div>
                 )}
               </div>
 
               {/* Thumbnail Grid */}
               {product.images.length > 1 && (
-                <div className="grid grid-cols-4 gap-4">
+                <div className="grid grid-cols-4 gap-2 sm:gap-4">
                   {product.images.slice(1, 5).map((image, index) => (
                     <div
                       key={index}
-                      className="relative aspect-square overflow-hidden rounded-xl border border-border bg-surface-1"
+                      className="relative aspect-square overflow-hidden rounded-lg sm:rounded-xl border border-border bg-white"
                     >
                       <Image
                         src={image}
@@ -82,18 +82,18 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </div>
 
             {/* Product Info */}
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               <div>
-                <div className="flex items-center gap-3 mb-2">
+                <div className="flex flex-wrap items-center gap-2 mb-2">
                   <Badge variant="secondary">{product.category}</Badge>
-                  {product.featured && <Badge variant="gradient">Featured</Badge>}
+                  {product.featured && <Badge>Featured</Badge>}
                 </div>
-                <h1 className="text-3xl font-bold lg:text-4xl">{product.name}</h1>
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">{product.name}</h1>
               </div>
 
               <div className="flex items-center gap-4">
                 <RatingStars rating={product.rating} size="lg" />
-                <span className="text-muted-foreground">
+                <span className="text-muted-foreground text-sm sm:text-base">
                   ({product.ratingCount} reviews)
                 </span>
               </div>
@@ -103,20 +103,20 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <Separator />
 
               <div>
-                <h3 className="font-semibold mb-2">Description</h3>
-                <p className="text-muted-foreground leading-relaxed">
+                <h3 className="font-semibold mb-2 text-foreground">Description</h3>
+                <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
                   {product.description}
                 </p>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 text-sm sm:text-base">
                 <span className="text-muted-foreground">Availability:</span>
                 {product.stock > 0 ? (
-                  <span className="text-emerald-400">
+                  <span className="text-accent font-medium">
                     In Stock ({product.stock} available)
                   </span>
                 ) : (
-                  <span className="text-destructive">Out of Stock</span>
+                  <span className="text-destructive font-medium">Out of Stock</span>
                 )}
               </div>
 

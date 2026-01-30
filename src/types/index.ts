@@ -56,6 +56,8 @@ export interface OrderWithDetails {
   paidAt: Date | null;
   shippedAt: Date | null;
   deliveredAt: Date | null;
+  kiraPayUrl: string | null;
+  kiraPayLinkId: string | null;
   address: {
     fullName: string;
     street: string;

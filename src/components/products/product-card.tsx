@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { RatingStars } from "@/components/shared/rating-stars";
-import { PriceTag } from "@/components/shared/price-tag";
+import { formatPrice } from "@/lib/utils";
 import type { ProductWithLikes } from "@/types";
 import { toggleLike } from "@/actions/likes";
 import { addToCart } from "@/actions/cart";
@@ -29,7 +29,7 @@ export function ProductCard({ product, isAuthenticated }: ProductCardProps) {
     e.stopPropagation();
 
     if (!isAuthenticated) {
-      toast.error("Please sign in to like products");
+      toast.error("Please sign in to save items");
       return;
     }
 
@@ -37,8 +37,6 @@ export function ProductCard({ product, isAuthenticated }: ProductCardProps) {
       const result = await toggleLike(product.id);
       if (result.error) {
         toast.error(result.error);
-      } else {
-        toast.success(result.liked ? "Added to likes" : "Removed from likes");
       }
     });
   };
@@ -64,89 +62,91 @@ export function ProductCard({ product, isAuthenticated }: ProductCardProps) {
 
   return (
     <Link href={`/product/${product.id}`}>
-      <Card
-        hover
-        className={cn(
-          "group relative overflow-hidden p-4",
-          "bg-gradient-to-b from-surface-1 to-card"
-        )}
-      >
+      <Card hover className="group relative overflow-hidden h-full">
         {/* Like Button */}
         <button
           onClick={handleLike}
           disabled={isLiking}
           className={cn(
-            "absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full",
-            "bg-background/80 backdrop-blur-sm border border-border",
+            "absolute right-2 top-2 z-10 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full",
+            "bg-white/90 backdrop-blur-sm shadow-sm",
             "transition-all duration-200 hover:scale-110",
-            product.isLiked && "border-accent-pink bg-accent-pink/20"
+            product.isLiked && "bg-primary-light"
           )}
         >
           <Heart
             className={cn(
-              "h-5 w-5 transition-colors",
+              "h-4 w-4 sm:h-5 sm:w-5 transition-colors",
               product.isLiked
-                ? "fill-accent-pink text-accent-pink"
-                : "text-muted-foreground hover:text-accent-pink"
+                ? "fill-primary text-primary"
+                : "text-muted-foreground hover:text-primary"
             )}
           />
         </button>
 
         {/* Featured Badge */}
         {product.featured && (
-          <Badge
-            variant="gradient"
-            className="absolute left-4 top-4 z-10"
-          >
+          <Badge className="absolute left-2 top-2 z-10 text-xs">
             Featured
           </Badge>
         )}
 
         {/* Product Image */}
-        <div className="relative aspect-square overflow-hidden rounded-xl bg-surface-2">
+        <div className="relative aspect-square overflow-hidden bg-surface-2">
           {product.images[0] ? (
             <Image
               src={product.images[0]}
               alt={product.name}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
           ) : (
             <div className="flex h-full items-center justify-center">
-              <ShoppingCart className="h-16 w-16 text-surface-3" />
+              <ShoppingCart className="h-12 w-12 sm:h-16 sm:w-16 text-border" />
             </div>
           )}
         </div>
 
         {/* Product Info */}
-        <div className="mt-4 space-y-2">
-          <h3 className="font-bold text-lg line-clamp-1 group-hover:text-accent-purple transition-colors">
+        <div className="p-3 sm:p-4 space-y-2">
+          <h3 className="font-semibold text-sm sm:text-base line-clamp-1 group-hover:text-primary transition-colors">
             {product.name}
           </h3>
 
           <RatingStars rating={product.rating} size="sm" />
 
-          <div className="flex items-center justify-between pt-2">
-            <PriceTag price={product.price} size="md" />
+          <div className="flex items-center justify-between pt-1 sm:pt-2 gap-2">
+            <span className="text-base sm:text-lg font-bold text-primary">
+              {formatPrice(product.price)}
+            </span>
 
             <Button
               size="sm"
               onClick={handleAddToCart}
               disabled={isAddingToCart || product.stock === 0}
-              className="gap-1"
+              className="h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm"
             >
-              <Plus className="h-4 w-4" />
-              {product.stock === 0 ? "Sold Out" : "Add"}
+              <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+              <span className="hidden sm:inline">Add</span>
             </Button>
           </div>
         </div>
 
         {/* Stock Warning */}
         {product.stock > 0 && product.stock <= 5 && (
-          <p className="mt-2 text-xs text-accent-orange">
-            Only {product.stock} left in stock!
-          </p>
+          <div className="px-3 sm:px-4 pb-3 sm:pb-4">
+            <p className="text-xs text-warning font-medium">
+              Only {product.stock} left!
+            </p>
+          </div>
+        )}
+
+        {/* Out of Stock Overlay */}
+        {product.stock === 0 && (
+          <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
+            <Badge variant="secondary" className="text-sm">Sold Out</Badge>
+          </div>
         )}
       </Card>
     </Link>

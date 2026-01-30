@@ -26,7 +26,7 @@ export function PriceTag({
     <div className={cn("flex items-baseline gap-2", className)}>
       <span
         className={cn(
-          "font-bold gradient-text",
+          "font-bold text-primary",
           sizes[size]
         )}
       >

@@ -42,9 +42,8 @@ export function RatingStars({
               <Star
                 className={cn(
                   sizes[size],
-                  "text-surface-3",
-                  filled && "text-accent-cyan fill-accent-cyan",
-                  partial && "text-accent-cyan"
+                  "text-border",
+                  filled && "text-secondary fill-secondary"
                 )}
               />
               {partial && (
@@ -53,7 +52,7 @@ export function RatingStars({
                   style={{ width: `${(rating % 1) * 100}%` }}
                 >
                   <Star
-                    className={cn(sizes[size], "text-accent-cyan fill-accent-cyan")}
+                    className={cn(sizes[size], "text-secondary fill-secondary")}
                   />
                 </div>
               )}

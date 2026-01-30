@@ -18,13 +18,12 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "flex h-11 w-full items-center justify-between gap-2 rounded-xl border border-border",
-      "bg-surface-2 px-4 py-2 text-sm",
+      "flex h-10 w-full items-center justify-between gap-2 rounded-lg border border-border",
+      "bg-white px-3 py-2 text-sm",
       "placeholder:text-muted-foreground",
       "transition-all duration-200",
-      "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background",
-      "focus:border-accent-purple focus:bg-surface-3",
-      "hover:border-[rgba(255,255,255,0.15)]",
+      "focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary",
+      "hover:border-primary/50",
       "disabled:cursor-not-allowed disabled:opacity-50",
       "[&>span]:line-clamp-1",
       className
@@ -82,8 +81,8 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-xl border border-border",
-        "bg-popover text-popover-foreground shadow-lg shadow-black/50",
+        "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-lg border border-border",
+        "bg-white text-foreground shadow-lg",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -131,9 +130,9 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex w-full cursor-pointer select-none items-center rounded-lg py-2 pl-2 pr-8 text-sm outline-none",
+      "relative flex w-full cursor-pointer select-none items-center rounded-md py-2 pl-2 pr-8 text-sm outline-none",
       "transition-colors duration-150",
-      "focus:bg-surface-3 focus:text-foreground",
+      "focus:bg-primary/10 focus:text-foreground",
       "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
@@ -141,7 +140,7 @@ const SelectItem = React.forwardRef<
   >
     <span className="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
       <SelectPrimitive.ItemIndicator>
-        <Check className="h-4 w-4 text-accent-purple" />
+        <Check className="h-4 w-4 text-primary" />
       </SelectPrimitive.ItemIndicator>
     </span>
     <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>

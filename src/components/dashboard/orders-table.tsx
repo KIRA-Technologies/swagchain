@@ -30,7 +30,7 @@ export function OrdersTable({ orders }: OrdersTableProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {orders.map((order) => (
         <OrderCard key={order.id} order={order} />
       ))}
@@ -56,20 +56,20 @@ function OrderCard({ order }: { order: OrderWithDetails }) {
   return (
     <Card className="overflow-hidden">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-surface-2/50 p-4">
-        <div className="space-y-1">
-          <p className="text-sm text-muted-foreground">Order ID</p>
-          <p className="font-mono text-sm">{order.id.slice(0, 8)}...</p>
+      <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4 bg-muted/50 p-3 sm:p-4">
+        <div className="space-y-0.5 sm:space-y-1">
+          <p className="text-xs sm:text-sm text-muted-foreground">Order ID</p>
+          <p className="font-mono text-xs sm:text-sm">{order.id.slice(0, 8)}...</p>
         </div>
-        <div className="space-y-1">
-          <p className="text-sm text-muted-foreground">Date</p>
-          <p className="text-sm">{formatDateTime(order.createdAt)}</p>
+        <div className="space-y-0.5 sm:space-y-1 hidden sm:block">
+          <p className="text-xs sm:text-sm text-muted-foreground">Date</p>
+          <p className="text-xs sm:text-sm">{formatDateTime(order.createdAt)}</p>
         </div>
-        <div className="space-y-1">
-          <p className="text-sm text-muted-foreground">Total</p>
-          <p className="font-bold gradient-text">{formatPrice(order.totalAmount)}</p>
+        <div className="space-y-0.5 sm:space-y-1">
+          <p className="text-xs sm:text-sm text-muted-foreground">Total</p>
+          <p className="font-bold text-primary text-sm sm:text-base">{formatPrice(order.totalAmount)}</p>
         </div>
-        <Badge variant={config.variant} className="gap-1">
+        <Badge variant={config.variant} className="gap-1 text-xs">
           <StatusIcon className="h-3 w-3" />
           {config.label}
         </Badge>
@@ -78,10 +78,10 @@ function OrderCard({ order }: { order: OrderWithDetails }) {
       <Separator />
 
       {/* Items */}
-      <div className="p-4 space-y-4">
+      <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
         {order.items.map((item) => (
-          <div key={item.id} className="flex items-center gap-4">
-            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-surface-2">
+          <div key={item.id} className="flex items-center gap-3 sm:gap-4">
+            <div className="relative h-12 w-12 sm:h-16 sm:w-16 shrink-0 overflow-hidden rounded-lg bg-muted">
               {item.product.images[0] ? (
                 <Image
                   src={item.product.images[0]}
@@ -91,17 +91,17 @@ function OrderCard({ order }: { order: OrderWithDetails }) {
                 />
               ) : (
                 <div className="flex h-full items-center justify-center">
-                  <Package className="h-6 w-6 text-surface-3" />
+                  <Package className="h-4 w-4 sm:h-6 sm:w-6 text-muted-foreground/30" />
                 </div>
               )}
             </div>
-            <div className="flex-1">
-              <p className="font-medium">{item.product.name}</p>
-              <p className="text-sm text-muted-foreground">
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-sm sm:text-base truncate">{item.product.name}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 Qty: {item.quantity} × {formatPrice(item.price)}
               </p>
             </div>
-            <p className="font-semibold">{formatPrice(item.price * item.quantity)}</p>
+            <p className="font-semibold text-sm sm:text-base shrink-0">{formatPrice(item.price * item.quantity)}</p>
           </div>
         ))}
       </div>
@@ -109,9 +109,9 @@ function OrderCard({ order }: { order: OrderWithDetails }) {
       <Separator />
 
       {/* Shipping Address */}
-      <div className="p-4 flex items-start gap-2">
+      <div className="p-3 sm:p-4 flex items-start gap-2">
         <MapPin className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
-        <div className="text-sm text-muted-foreground">
+        <div className="text-xs sm:text-sm text-muted-foreground">
           <span className="font-medium text-foreground">{order.address.fullName}</span>
           <br />
           {order.address.street}, {order.address.city}, {order.address.state}{" "}

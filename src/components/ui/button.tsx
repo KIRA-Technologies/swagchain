@@ -4,30 +4,30 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.98]",
   {
     variants: {
       variant: {
         default:
-          "btn-gradient text-white shadow-lg hover:shadow-[0_0_30px_rgba(168,85,247,0.5)] hover:-translate-y-0.5",
+          "bg-primary text-white shadow-sm hover:bg-primary-hover hover:shadow-md",
         destructive:
-          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+          "bg-destructive text-white shadow-sm hover:bg-destructive/90",
         outline:
-          "border border-[rgba(168,85,247,0.4)] bg-transparent text-accent-purple hover:bg-accent-purple/10 hover:border-accent-purple",
+          "border-2 border-border bg-transparent hover:bg-surface-2 hover:border-primary/30",
         secondary:
-          "bg-surface-2 text-foreground border border-border hover:bg-surface-3 hover:border-[rgba(255,255,255,0.15)]",
+          "bg-surface-2 text-foreground hover:bg-surface-3",
         ghost:
-          "hover:bg-surface-2 hover:text-foreground",
+          "hover:bg-surface-2",
         link:
-          "text-accent-purple underline-offset-4 hover:underline",
-        glow:
-          "btn-gradient text-white shadow-lg animate-pulse-glow",
+          "text-primary underline-offset-4 hover:underline",
+        accent:
+          "bg-accent text-white shadow-sm hover:bg-accent-hover hover:shadow-md",
       },
       size: {
-        default: "h-11 px-6 py-2",
+        default: "h-11 px-5 py-2",
         sm: "h-9 rounded-lg px-4 text-xs",
-        lg: "h-12 rounded-xl px-8 text-base",
-        xl: "h-14 rounded-2xl px-10 text-lg",
+        lg: "h-12 rounded-xl px-6 text-base",
+        xl: "h-14 rounded-xl px-8 text-base",
         icon: "h-10 w-10 rounded-xl",
       },
     },

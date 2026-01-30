@@ -38,7 +38,7 @@ export function CartTab({ cartItems }: CartTabProps) {
   );
 
   return (
-    <div className="grid gap-8 lg:grid-cols-3">
+    <div className="grid gap-6 lg:gap-8 lg:grid-cols-3">
       {/* Cart Items */}
       <div className="lg:col-span-2 space-y-4">
         {cartItems.map((item) => (
@@ -48,17 +48,17 @@ export function CartTab({ cartItems }: CartTabProps) {
 
       {/* Order Summary */}
       <div className="lg:col-span-1">
-        <Card className="p-6 sticky top-24">
+        <Card className="p-4 sm:p-6 sticky top-24">
           <h3 className="font-bold text-lg mb-4">Order Summary</h3>
 
           <div className="space-y-3">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Subtotal</span>
-              <span>{formatPrice(subtotal)}</span>
+              <span className="font-medium">{formatPrice(subtotal)}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Shipping</span>
-              <span className="text-emerald-400">Free</span>
+              <span className="text-accent font-medium">Free</span>
             </div>
           </div>
 
@@ -66,7 +66,7 @@ export function CartTab({ cartItems }: CartTabProps) {
 
           <div className="flex justify-between font-bold text-lg">
             <span>Total</span>
-            <span className="gradient-text">{formatPrice(subtotal)}</span>
+            <span className="text-primary">{formatPrice(subtotal)}</span>
           </div>
 
           <Link href="/checkout" className="block mt-6">
@@ -109,11 +109,11 @@ function CartItem({ item }: { item: CartItemWithProduct }) {
   };
 
   return (
-    <Card className="p-4">
-      <div className="flex gap-4">
+    <Card className="p-3 sm:p-4">
+      <div className="flex gap-3 sm:gap-4">
         {/* Product Image */}
         <Link href={`/product/${item.product.id}`}>
-          <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-surface-2">
+          <div className="relative h-20 w-20 sm:h-24 sm:w-24 shrink-0 overflow-hidden rounded-lg sm:rounded-xl bg-muted">
             {item.product.images[0] ? (
               <Image
                 src={item.product.images[0]}
@@ -123,17 +123,17 @@ function CartItem({ item }: { item: CartItemWithProduct }) {
               />
             ) : (
               <div className="flex h-full items-center justify-center">
-                <ShoppingBag className="h-8 w-8 text-surface-3" />
+                <ShoppingBag className="h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground/30" />
               </div>
             )}
           </div>
         </Link>
 
         {/* Product Info */}
-        <div className="flex flex-1 flex-col justify-between">
+        <div className="flex flex-1 flex-col justify-between min-w-0">
           <div>
             <Link href={`/product/${item.product.id}`}>
-              <h4 className="font-semibold hover:text-accent-purple transition-colors">
+              <h4 className="font-semibold hover:text-primary transition-colors truncate">
                 {item.product.name}
               </h4>
             </Link>
@@ -142,23 +142,23 @@ function CartItem({ item }: { item: CartItemWithProduct }) {
             </p>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mt-2">
             {/* Quantity Controls */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               <Button
                 variant="outline"
                 size="icon"
-                className="h-8 w-8"
+                className="h-7 w-7 sm:h-8 sm:w-8"
                 onClick={() => handleUpdateQuantity(item.quantity - 1)}
                 disabled={isPending || item.quantity <= 1}
               >
                 <Minus className="h-3 w-3" />
               </Button>
-              <span className="w-8 text-center font-medium">{item.quantity}</span>
+              <span className="w-6 sm:w-8 text-center font-medium text-sm sm:text-base">{item.quantity}</span>
               <Button
                 variant="outline"
                 size="icon"
-                className="h-8 w-8"
+                className="h-7 w-7 sm:h-8 sm:w-8"
                 onClick={() => handleUpdateQuantity(item.quantity + 1)}
                 disabled={isPending || item.quantity >= item.product.stock}
               >
@@ -167,14 +167,14 @@ function CartItem({ item }: { item: CartItemWithProduct }) {
             </div>
 
             {/* Subtotal & Remove */}
-            <div className="flex items-center gap-4">
-              <span className="font-bold">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <span className="font-bold text-sm sm:text-base">
                 {formatPrice(item.product.price * item.quantity)}
               </span>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-destructive hover:text-destructive"
+                className="h-7 w-7 sm:h-8 sm:w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                 onClick={handleRemove}
                 disabled={isPending}
               >

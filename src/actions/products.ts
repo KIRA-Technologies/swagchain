@@ -201,7 +201,23 @@ export async function deleteProduct(id: string) {
   }
 
   try {
-    await prisma.product.delete({ where: { id } });
+    // Check if product has been ordered
+    const orderCount = await prisma.orderItem.count({
+      where: { productId: id },
+    });
+
+    if (orderCount > 0) {
+      return {
+        error: `Cannot delete this product because it has been ordered ${orderCount} time(s). Consider setting stock to 0 instead.`,
+      };
+    }
+
+    // Delete related cart items and likes first, then the product
+    await prisma.$transaction([
+      prisma.cartItem.deleteMany({ where: { productId: id } }),
+      prisma.like.deleteMany({ where: { productId: id } }),
+      prisma.product.delete({ where: { id } }),
+    ]);
 
     revalidatePath("/");
     revalidatePath("/admin/products");

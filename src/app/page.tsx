@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { auth } from "@/lib/auth";
-import { getProducts, getFeaturedProducts } from "@/actions/products";
+import { getProducts } from "@/actions/products";
 import { getCartCount } from "@/actions/cart";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
@@ -9,7 +9,7 @@ import { ProductFilters } from "@/components/products/product-filters";
 import { SearchBar } from "@/components/products/search-bar";
 import { ProductGridSkeleton } from "@/components/shared/loading-skeleton";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Zap, Shield, Truck } from "lucide-react";
+import { ArrowRight, Truck, Shield, CreditCard } from "lucide-react";
 import Link from "next/link";
 import type { ProductFilters as Filters } from "@/types";
 
@@ -45,50 +45,63 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       <Navbar cartCount={cartCount} />
 
       <main className="flex-1">
-        {/* Hero Section - Only show when no filters */}
+        {/* Hero Section */}
         {!hasFilters && <HeroSection />}
 
         {/* Products Section */}
-        <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h2 className="text-3xl font-bold">
-                {hasFilters ? "Search Results" : "All Products"}
-              </h2>
-              <p className="mt-1 text-muted-foreground">
-                Browse our collection of crypto-themed merchandise
-              </p>
+        <section id="products" className="py-8 sm:py-12 lg:py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            {/* Header */}
+            <div className="flex flex-col gap-4 mb-6 sm:mb-8">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h2 className="text-2xl sm:text-3xl font-bold">
+                    {hasFilters ? "Search Results" : "Shop All"}
+                  </h2>
+                  <p className="text-muted-foreground text-sm sm:text-base mt-1">
+                    Crypto-themed merch for the community
+                  </p>
+                </div>
+                <div className="w-full sm:w-72">
+                  <Suspense fallback={null}>
+                    <SearchBar />
+                  </Suspense>
+                </div>
+              </div>
             </div>
-            <div className="w-full md:w-80">
-              <Suspense fallback={null}>
-                <SearchBar />
-              </Suspense>
-            </div>
-          </div>
 
-          <div className="grid gap-8 lg:grid-cols-[280px_1fr]">
-            {/* Filters Sidebar */}
-            <aside className="hidden lg:block">
-              <div className="sticky top-24">
+            {/* Main Content */}
+            <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+              {/* Filters - Desktop Sidebar */}
+              <aside className="hidden lg:block lg:w-64 shrink-0">
+                <div className="sticky top-24">
+                  <Suspense fallback={null}>
+                    <ProductFilters />
+                  </Suspense>
+                </div>
+              </aside>
+
+              {/* Mobile Filters */}
+              <div className="lg:hidden">
                 <Suspense fallback={null}>
-                  <ProductFilters />
+                  <MobileFilters />
                 </Suspense>
               </div>
-            </aside>
 
-            {/* Product Grid */}
-            <div>
-              <Suspense fallback={<ProductGridSkeleton />}>
-                <ProductsLoader
-                  filters={filters}
-                  isAuthenticated={!!session}
-                />
-              </Suspense>
+              {/* Product Grid */}
+              <div className="flex-1">
+                <Suspense fallback={<ProductGridSkeleton />}>
+                  <ProductsLoader
+                    filters={filters}
+                    isAuthenticated={!!session}
+                  />
+                </Suspense>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Features Section */}
+        {/* Features */}
         {!hasFilters && <FeaturesSection />}
       </main>
 
@@ -99,43 +112,29 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
 function HeroSection() {
   return (
-    <section className="relative overflow-hidden border-b border-border">
-      <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-32">
-        <div className="grid gap-12 lg:grid-cols-2 lg:gap-8">
-          <div className="flex flex-col justify-center">
-            <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
-              <span className="block">Crypto Swag</span>
-              <span className="block">For The</span>
-              <span className="gradient-text">Bold</span>
-            </h1>
-            <p className="mt-6 max-w-lg text-lg text-muted-foreground">
-              Premium merchandise for the crypto community. Rep your favorite
-              chains and protocols with style. Pay seamlessly with crypto via
-              Kira-Pay.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-4">
-              <Link href="#products">
-                <Button size="xl" className="group">
-                  Shop Now
-                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                </Button>
-              </Link>
-              <Link href="/login">
-                <Button size="xl" variant="outline">
-                  Sign In
-                </Button>
-              </Link>
-            </div>
-          </div>
-          <div className="relative hidden lg:block">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="relative h-96 w-96">
-                <div className="absolute inset-0 animate-pulse-glow rounded-full bg-gradient-to-br from-accent-purple via-accent-pink to-accent-cyan opacity-20 blur-3xl" />
-                <div className="absolute inset-8 flex items-center justify-center rounded-3xl border border-border bg-card/50 backdrop-blur-xl">
-                  <Zap className="h-32 w-32 text-accent-purple animate-float" />
-                </div>
-              </div>
-            </div>
+    <section className="bg-surface-2/50 border-b border-border">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
+        <div className="text-center max-w-2xl mx-auto">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+            Premium Crypto
+            <span className="text-primary"> Swag</span>
+          </h1>
+          <p className="mt-4 text-base sm:text-lg text-muted-foreground max-w-lg mx-auto">
+            Rep your favorite chains with style. High-quality merch,
+            pay with crypto via Kira-Pay.
+          </p>
+          <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+            <Link href="#products">
+              <Button size="lg" className="w-full sm:w-auto">
+                Shop Now
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+            {/* <Link href="/login">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                Sign In
+              </Button>
+            </Link> */}
           </div>
         </div>
       </div>
@@ -146,43 +145,82 @@ function HeroSection() {
 function FeaturesSection() {
   const features = [
     {
-      icon: Zap,
+      icon: CreditCard,
       title: "Pay with Crypto",
-      description: "Seamless payments via Kira-Pay. ETH, USDC, and more.",
+      description: "ETH, USDC, USDT via Kira-Pay",
     },
     {
       icon: Shield,
-      title: "Secure & Fast",
-      description: "Enterprise-grade security with instant confirmations.",
+      title: "Secure Checkout",
+      description: "Enterprise-grade security",
     },
     {
       icon: Truck,
-      title: "Worldwide Shipping",
-      description: "Fast delivery to crypto enthusiasts everywhere.",
+      title: "Fast Shipping",
+      description: "Worldwide delivery",
     },
   ];
 
   return (
-    <section className="border-t border-border bg-surface-1/50">
-      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid gap-8 md:grid-cols-3">
+    <section className="border-t border-border bg-surface-1">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-8">
           {features.map((feature) => (
             <div
               key={feature.title}
-              className="flex flex-col items-center text-center p-6 rounded-2xl border border-border bg-card/50"
+              className="flex items-center gap-4 sm:flex-col sm:text-center sm:gap-3"
             >
-              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-accent-purple/20 to-accent-pink/20 mb-4">
-                <feature.icon className="h-7 w-7 text-accent-purple" />
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-light">
+                <feature.icon className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="font-bold text-lg mb-2">{feature.title}</h3>
-              <p className="text-sm text-muted-foreground">
-                {feature.description}
-              </p>
+              <div>
+                <h3 className="font-semibold">{feature.title}</h3>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  {feature.description}
+                </p>
+              </div>
             </div>
           ))}
         </div>
       </div>
     </section>
+  );
+}
+
+function MobileFilters() {
+  return (
+    <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+      <Link href="/">
+        <Button variant="secondary" size="sm" className="whitespace-nowrap">
+          All
+        </Button>
+      </Link>
+      <Link href="/?category=Hoodies">
+        <Button variant="outline" size="sm" className="whitespace-nowrap">
+          Hoodies
+        </Button>
+      </Link>
+      <Link href="/?category=T-Shirts">
+        <Button variant="outline" size="sm" className="whitespace-nowrap">
+          T-Shirts
+        </Button>
+      </Link>
+      <Link href="/?category=Hats">
+        <Button variant="outline" size="sm" className="whitespace-nowrap">
+          Hats
+        </Button>
+      </Link>
+      <Link href="/?category=Mugs">
+        <Button variant="outline" size="sm" className="whitespace-nowrap">
+          Mugs
+        </Button>
+      </Link>
+      <Link href="/?category=Accessories">
+        <Button variant="outline" size="sm" className="whitespace-nowrap">
+          Accessories
+        </Button>
+      </Link>
+    </div>
   );
 }
 

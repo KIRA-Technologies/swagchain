@@ -72,17 +72,18 @@ export function ProductActions({ product, isAuthenticated }: ProductActionsProps
     <div className="space-y-4">
       {/* Quantity Selector */}
       <div className="flex items-center gap-4">
-        <span className="font-medium">Quantity:</span>
+        <span className="font-medium text-foreground">Quantity:</span>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="icon"
             onClick={decrementQuantity}
             disabled={quantity <= 1}
+            className="h-9 w-9"
           >
             <Minus className="h-4 w-4" />
           </Button>
-          <span className="w-12 text-center font-semibold text-lg">
+          <span className="w-12 text-center font-semibold text-lg text-foreground">
             {quantity}
           </span>
           <Button
@@ -90,6 +91,7 @@ export function ProductActions({ product, isAuthenticated }: ProductActionsProps
             size="icon"
             onClick={incrementQuantity}
             disabled={quantity >= product.stock}
+            className="h-9 w-9"
           >
             <Plus className="h-4 w-4" />
           </Button>
@@ -97,7 +99,7 @@ export function ProductActions({ product, isAuthenticated }: ProductActionsProps
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-4">
+      <div className="flex gap-3 sm:gap-4">
         <Button
           size="xl"
           className="flex-1"
@@ -118,13 +120,14 @@ export function ProductActions({ product, isAuthenticated }: ProductActionsProps
           onClick={handleLike}
           disabled={isLiking}
           className={cn(
-            isLiked && "border-accent-pink text-accent-pink hover:text-accent-pink"
+            "px-4",
+            isLiked && "border-red-400 text-red-500 hover:text-red-500 hover:bg-red-50"
           )}
         >
           <Heart
             className={cn(
               "h-5 w-5",
-              isLiked && "fill-accent-pink"
+              isLiked && "fill-red-500"
             )}
           />
         </Button>

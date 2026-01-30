@@ -13,7 +13,7 @@ function LoginForm() {
   const callbackUrl = searchParams.get("callbackUrl") || "/";
 
   return (
-    <Card className="border-2">
+    <Card className="border shadow-lg">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl">Welcome Back</CardTitle>
         <CardDescription>
@@ -23,9 +23,9 @@ function LoginForm() {
       <CardContent className="space-y-4">
         <Button
           onClick={() => signIn("google", { callbackUrl })}
-          variant="secondary"
+          variant="outline"
           size="lg"
-          className="w-full gap-3"
+          className="w-full gap-3 hover:bg-muted"
         >
           <svg className="h-5 w-5" viewBox="0 0 24 24">
             <path
@@ -58,20 +58,20 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
+    <div className="flex min-h-screen items-center justify-center px-4 bg-background">
       <div className="w-full max-w-md">
         {/* Logo */}
         <Link href="/" className="flex items-center justify-center gap-2 mb-8">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-accent-purple to-accent-pink">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
             <Zap className="h-7 w-7 text-white" />
           </div>
           <span className="text-2xl font-bold tracking-tight">
-            <span className="gradient-text">Swag</span>
+            <span className="text-primary">Swag</span>
             <span className="text-foreground">Chain</span>
           </span>
         </Link>
 
-        <Suspense fallback={<div className="h-64 animate-shimmer rounded-2xl" />}>
+        <Suspense fallback={<div className="h-64 animate-pulse rounded-xl bg-muted" />}>
           <LoginForm />
         </Suspense>
 

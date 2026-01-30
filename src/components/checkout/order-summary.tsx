@@ -16,7 +16,7 @@ export function OrderSummary({ cartItems, subtotal }: OrderSummaryProps) {
       <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
         {cartItems.map((item) => (
           <div key={item.id} className="flex gap-3">
-            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-surface-2">
+            <div className="relative h-14 w-14 sm:h-16 sm:w-16 shrink-0 overflow-hidden rounded-lg bg-muted">
               {item.product.images[0] ? (
                 <Image
                   src={item.product.images[0]}
@@ -26,20 +26,20 @@ export function OrderSummary({ cartItems, subtotal }: OrderSummaryProps) {
                 />
               ) : (
                 <div className="flex h-full items-center justify-center">
-                  <ShoppingBag className="h-6 w-6 text-surface-3" />
+                  <ShoppingBag className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground/30" />
                 </div>
               )}
-              <div className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-accent-purple text-xs font-bold text-white">
+              <div className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">
                 {item.quantity}
               </div>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-medium truncate">{item.product.name}</p>
-              <p className="text-sm text-muted-foreground">
+              <p className="font-medium text-sm sm:text-base truncate">{item.product.name}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 {formatPrice(item.product.price)} × {item.quantity}
               </p>
             </div>
-            <p className="font-semibold shrink-0">
+            <p className="font-semibold text-sm sm:text-base shrink-0">
               {formatPrice(item.product.price * item.quantity)}
             </p>
           </div>
@@ -52,11 +52,11 @@ export function OrderSummary({ cartItems, subtotal }: OrderSummaryProps) {
       <div className="space-y-2">
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Subtotal</span>
-          <span>{formatPrice(subtotal)}</span>
+          <span className="font-medium">{formatPrice(subtotal)}</span>
         </div>
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Shipping</span>
-          <span className="text-emerald-400">Free</span>
+          <span className="text-accent font-medium">Free</span>
         </div>
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Tax</span>
@@ -66,9 +66,9 @@ export function OrderSummary({ cartItems, subtotal }: OrderSummaryProps) {
 
       <Separator />
 
-      <div className="flex justify-between font-bold text-xl">
+      <div className="flex justify-between font-bold text-lg sm:text-xl">
         <span>Total</span>
-        <span className="gradient-text">{formatPrice(subtotal)}</span>
+        <span className="text-primary">{formatPrice(subtotal)}</span>
       </div>
     </div>
   );

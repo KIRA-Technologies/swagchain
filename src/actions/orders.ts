@@ -15,7 +15,16 @@ export async function getUserOrders(): Promise<OrderWithDetails[]> {
 
   const orders = await prisma.order.findMany({
     where: { userId: session.user.id },
-    include: {
+    select: {
+      id: true,
+      status: true,
+      totalAmount: true,
+      createdAt: true,
+      paidAt: true,
+      shippedAt: true,
+      deliveredAt: true,
+      kiraPayUrl: true,
+      kiraPayLinkId: true,
       address: {
         select: {
           fullName: true,
@@ -27,7 +36,10 @@ export async function getUserOrders(): Promise<OrderWithDetails[]> {
         },
       },
       items: {
-        include: {
+        select: {
+          id: true,
+          quantity: true,
+          price: true,
           product: {
             select: {
               id: true,
@@ -57,7 +69,16 @@ export async function getOrderById(
       id: orderId,
       userId: session.user.id,
     },
-    include: {
+    select: {
+      id: true,
+      status: true,
+      totalAmount: true,
+      createdAt: true,
+      paidAt: true,
+      shippedAt: true,
+      deliveredAt: true,
+      kiraPayUrl: true,
+      kiraPayLinkId: true,
       address: {
         select: {
           fullName: true,
@@ -69,7 +90,10 @@ export async function getOrderById(
         },
       },
       items: {
-        include: {
+        select: {
+          id: true,
+          quantity: true,
+          price: true,
           product: {
             select: {
               id: true,
