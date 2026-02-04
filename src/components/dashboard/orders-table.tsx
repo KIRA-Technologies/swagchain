@@ -5,6 +5,7 @@ import { Package, Clock, CheckCircle2, Truck, MapPin } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { formatPrice, formatDateTime } from "@/lib/utils";
 import type { OrderWithDetails } from "@/types";
@@ -118,6 +119,23 @@ function OrderCard({ order }: { order: OrderWithDetails }) {
           {order.address.postalCode}, {order.address.country}
         </div>
       </div>
+
+      {order.status === "CREATED" ? (
+        <>
+          <Separator />
+          <div className="p-3 sm:p-4">
+            {order.kiraPayUrl ? (
+              <a href={order.kiraPayUrl} className="block">
+                <Button className="w-full">Complete Payment</Button>
+              </a>
+            ) : (
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                Payment link not available. Please contact support.
+              </p>
+            )}
+          </div>
+        </>
+      ) : null}
     </Card>
   );
 }

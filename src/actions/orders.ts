@@ -185,8 +185,16 @@ export async function createOrder(addressData: {
 
     // Create Kira-Pay payment link
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const firstItemName = cartItems[0]?.product.name;
+    const itemCount = cartItems.length;
+    const linkName =
+      itemCount > 1
+        ? `${firstItemName} + ${itemCount - 1} more`
+        : firstItemName || `SwagChain Order ${order.id}`;
+
     const paymentResult = await createPaymentLink({
       price: totalAmount,
+      name: linkName,
       customOrderId: order.id,
       redirectUrl: `${appUrl}/order/success?orderId=${order.id}`,
     });

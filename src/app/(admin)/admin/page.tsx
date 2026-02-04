@@ -2,8 +2,9 @@ import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Package, ShoppingCart, Users, DollarSign, ArrowRight } from "lucide-react";
+import { Package, ShoppingCart, Users, DollarSign, ArrowRight, Webhook } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
+import { WebhookInitButton } from "@/components/admin/webhook-init";
 
 export default async function AdminDashboardPage() {
   const [productCount, orderCount, userCount, revenue] = await Promise.all([
@@ -106,6 +107,17 @@ export default async function AdminDashboardPage() {
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Button>
           </Link>
+        </Card>
+
+        <Card className="p-4 sm:p-6">
+          <h2 className="font-bold text-base sm:text-lg mb-2 sm:mb-4 text-foreground flex items-center gap-2">
+            <Webhook className="h-4 w-4" />
+            Webhook Setup
+          </h2>
+          <p className="text-muted-foreground text-sm sm:text-base mb-4">
+            Register the KiraPay webhook endpoint for payment events.
+          </p>
+          <WebhookInitButton />
         </Card>
       </div>
     </div>

@@ -1,18 +1,18 @@
-const KIRA_PAY_API_URL = process.env.KIRA_PAY_API_URL || "https://api.kira-pay.com";
+const KIRA_PAY_API_URL =
+  process.env.KIRA_PAY_API_URL || "https://api.kira-pay.com";
 const KIRA_PAY_API_KEY = process.env.KIRA_PAY_API_KEY || "";
+const KIRA_PAY_AUTH_TOKEN =
+  process.env.KIRA_PAY_AUTH_TOKEN || process.env.KIRA_PAY_API_KEY || "";
 
 interface WebhookEndpoint {
-  id: string;
+  _id: string;
   url: string;
-  events: string[];
-  active: boolean;
-  secret?: string;
   createdAt: string;
 }
 
 interface CreateWebhookParams {
   url: string;
-  events: string[];
+  secret: string;
 }
 
 /**
@@ -20,16 +20,17 @@ interface CreateWebhookParams {
  */
 export async function createWebhookEndpoint(params: CreateWebhookParams): Promise<{
   success: boolean;
-  data?: WebhookEndpoint;
+  data?: { message?: string; webhook?: WebhookEndpoint };
   error?: string;
 }> {
   try {
     console.log("[Kira-Pay Admin] Creating webhook endpoint:", params);
 
-    const response = await fetch(`${KIRA_PAY_API_URL}/api/admin/webhooks/endpoints`, {
+    const response = await fetch(`${KIRA_PAY_API_URL}/api/webhooks`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${KIRA_PAY_AUTH_TOKEN}`,
         "x-api-key": KIRA_PAY_API_KEY,
       },
       body: JSON.stringify(params),
@@ -63,17 +64,18 @@ export async function createWebhookEndpoint(params: CreateWebhookParams): Promis
 }
 
 /**
- * List all registered webhook endpoints
+ * Get the configured webhook endpoint
  */
-export async function listWebhookEndpoints(): Promise<{
+export async function getWebhookEndpoint(): Promise<{
   success: boolean;
-  data?: WebhookEndpoint[];
+  data?: WebhookEndpoint | { message?: string };
   error?: string;
 }> {
   try {
-    const response = await fetch(`${KIRA_PAY_API_URL}/api/admin/webhooks/endpoints`, {
+    const response = await fetch(`${KIRA_PAY_API_URL}/api/webhooks`, {
       method: "GET",
       headers: {
+        Authorization: `Bearer ${KIRA_PAY_AUTH_TOKEN}`,
         "x-api-key": KIRA_PAY_API_KEY,
       },
     });
@@ -89,7 +91,7 @@ export async function listWebhookEndpoints(): Promise<{
     const data = await response.json();
     return {
       success: true,
-      data: data.endpoints || data,
+      data: data,
     };
   } catch (error) {
     console.error("[Kira-Pay Admin] Error listing webhooks:", error);
@@ -101,24 +103,20 @@ export async function listWebhookEndpoints(): Promise<{
 }
 
 /**
- * Update a webhook endpoint
+ * Delete the configured webhook endpoint
  */
-export async function updateWebhookEndpoint(
-  id: string,
-  params: Partial<CreateWebhookParams & { active: boolean }>
-): Promise<{
+export async function deleteWebhookEndpoint(): Promise<{
   success: boolean;
-  data?: WebhookEndpoint;
+  data?: { message?: string };
   error?: string;
 }> {
   try {
-    const response = await fetch(`${KIRA_PAY_API_URL}/api/admin/webhooks/endpoints/${id}`, {
-      method: "PATCH",
+    const response = await fetch(`${KIRA_PAY_API_URL}/api/webhooks`, {
+      method: "DELETE",
       headers: {
-        "Content-Type": "application/json",
+        Authorization: `Bearer ${KIRA_PAY_AUTH_TOKEN}`,
         "x-api-key": KIRA_PAY_API_KEY,
       },
-      body: JSON.stringify(params),
     });
 
     if (!response.ok) {
@@ -136,44 +134,6 @@ export async function updateWebhookEndpoint(
     };
   } catch (error) {
     console.error("[Kira-Pay Admin] Error updating webhook:", error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
-    };
-  }
-}
-
-/**
- * List webhook deliveries (for debugging)
- */
-export async function listWebhookDeliveries(): Promise<{
-  success: boolean;
-  data?: unknown[];
-  error?: string;
-}> {
-  try {
-    const response = await fetch(`${KIRA_PAY_API_URL}/api/admin/webhooks/deliveries`, {
-      method: "GET",
-      headers: {
-        "x-api-key": KIRA_PAY_API_KEY,
-      },
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      return {
-        success: false,
-        error: errorData.message || `HTTP error: ${response.status}`,
-      };
-    }
-
-    const data = await response.json();
-    return {
-      success: true,
-      data: data.deliveries || data,
-    };
-  } catch (error) {
-    console.error("[Kira-Pay Admin] Error listing deliveries:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

@@ -5,17 +5,21 @@ import crypto from "crypto";
 const KIRA_PAY_WEBHOOK_SECRET = process.env.KIRA_PAY_WEBHOOK_SECRET || "";
 
 interface KiraPayWebhookPayload {
-  event: "payment.completed" | "payment.failed" | "payment.expired";
+  event:
+    | "transaction.created"
+    | "transaction.succeeded"
+    | "transaction.failed"
+    | "transaction.refund";
   data: {
-    id: string;
-    linkId: string;
+    transactionId: string;
+    linkCode: string;
     customOrderId: string;
-    amount: number;
+    amount: string;
     currency: string;
+    sender: string;
+    receiver: string;
     status: string;
-    paidAt?: string;
-    transactionHash?: string;
-    walletAddress?: string;
+    settlementAmount?: string;
   };
   timestamp: string;
 }
@@ -35,16 +39,19 @@ function verifySignature(
     .update(payload)
     .digest("hex");
 
-  return crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expectedSignature)
-  );
+  const signatureBuffer = Buffer.from(signature);
+  const expectedBuffer = Buffer.from(expectedSignature);
+  if (signatureBuffer.length !== expectedBuffer.length) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(signatureBuffer, expectedBuffer);
 }
 
 export async function POST(request: NextRequest) {
   try {
     const payload = await request.text();
-    const signature = request.headers.get("x-kira-signature") || "";
+    const signature = request.headers.get("x-kirapay-signature") || "";
 
     console.log("[Webhook] Received Kira-Pay webhook");
 
@@ -72,24 +79,24 @@ export async function POST(request: NextRequest) {
 
     // Handle different events
     switch (data.event) {
-      case "payment.completed":
-        console.log("[Webhook] Payment completed for order:", orderId);
+      case "transaction.succeeded":
+        console.log("[Webhook] Transaction succeeded for order:", orderId);
 
         await prisma.order.update({
           where: { id: orderId },
           data: {
             status: "PAID",
-            paidAt: data.data.paidAt ? new Date(data.data.paidAt) : new Date(),
+            paidAt: new Date(data.timestamp),
           },
         });
 
         console.log("[Webhook] Order marked as PAID");
         break;
 
-      case "payment.failed":
-        console.log("[Webhook] Payment failed for order:", orderId);
+      case "transaction.failed":
+        console.log("[Webhook] Transaction failed for order:", orderId);
 
-        // Optionally restore stock if payment failed
+        // Restore stock if payment failed
         const orderItems = await prisma.orderItem.findMany({
           where: { orderId },
         });
@@ -109,15 +116,15 @@ export async function POST(request: NextRequest) {
         console.log("[Webhook] Order cancelled and stock restored");
         break;
 
-      case "payment.expired":
-        console.log("[Webhook] Payment expired for order:", orderId);
+      case "transaction.refund":
+        console.log("[Webhook] Transaction refunded for order:", orderId);
 
-        // Restore stock for expired payments
-        const expiredOrderItems = await prisma.orderItem.findMany({
+        // Restore stock for refunded payments
+        const refundedOrderItems = await prisma.orderItem.findMany({
           where: { orderId },
         });
 
-        for (const item of expiredOrderItems) {
+        for (const item of refundedOrderItems) {
           await prisma.product.update({
             where: { id: item.productId },
             data: { stock: { increment: item.quantity } },
@@ -129,7 +136,11 @@ export async function POST(request: NextRequest) {
           data: { status: "CANCELLED" },
         });
 
-        console.log("[Webhook] Order cancelled due to expiration");
+        console.log("[Webhook] Order cancelled due to refund");
+        break;
+
+      case "transaction.created":
+        console.log("[Webhook] Transaction created for order:", orderId);
         break;
 
       default:

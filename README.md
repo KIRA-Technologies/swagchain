@@ -91,7 +91,10 @@ GOOGLE_CLIENT_SECRET="your-client-secret"
 
 # Kira-Pay
 KIRA_PAY_API_KEY="your-api-key"
+KIRA_PAY_AUTH_TOKEN="your-jwt-or-api-key"
 KIRA_PAY_API_URL="https://api.kira-pay.com"
+KIRA_PAY_RECEIVER="0x0000000000000000000000000000000000000000"
+KIRA_PAY_WEBHOOK_SECRET="your-webhook-secret"
 
 # App
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
@@ -184,27 +187,17 @@ The checkout flow integrates with Kira-Pay for crypto payments:
 API endpoint used:
 ```
 POST https://api.kira-pay.com/api/link/generate
-Headers: x-api-key: <API_KEY>
-Body: { price, customOrderId, redirectUrl, type: "single_use" }
+Headers: Authorization: Bearer <TOKEN>, x-api-key: <API_KEY>
+Body: { receiver, price, name, customOrderId, redirectUrl, type: "single_use" }
 ```
 
-## Admin Access
-
-To access the admin panel:
-
-1. Sign in with Google
-2. Update your user's role to `ADMIN` in the database:
-```sql
-UPDATE "User" SET role = 'ADMIN' WHERE email = 'your-email@gmail.com';
+Webhook setup:
 ```
-3. Or set the `ADMIN_EMAIL` env variable before seeding:
-```bash
-ADMIN_EMAIL="your-email@gmail.com" pnpm db:seed
+POST https://api.kira-pay.com/api/webhooks
+Headers: Authorization: Bearer <TOKEN>, x-api-key: <API_KEY>
+Body: { url, secret }
 ```
 
-## License
-
-MIT
 
 ---
 
