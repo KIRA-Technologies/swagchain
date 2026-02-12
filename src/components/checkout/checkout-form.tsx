@@ -51,8 +51,9 @@ export function CheckoutForm() {
       }
 
       if (result.paymentUrl) {
-        // Redirect to Kira-Pay payment page
-        window.location.href = result.paymentUrl;
+        // Open payment link in a new tab and keep user on SwagChain
+        window.open(result.paymentUrl, "_blank", "noopener,noreferrer");
+        router.push(`/order/success?orderId=${result.orderId}`);
       } else {
         // Fallback to success page if no payment URL
         router.push(`/order/success?orderId=${result.orderId}`);

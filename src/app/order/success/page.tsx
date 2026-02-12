@@ -3,7 +3,6 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { getOrderById } from "@/actions/orders";
 import { getCartCount } from "@/actions/cart";
-import { verifyAndUpdateOrderPayment } from "@/actions/payment";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Card } from "@/components/ui/card";
@@ -28,9 +27,6 @@ export default async function OrderSuccessPage({ searchParams }: OrderSuccessPag
   if (!params.orderId) {
     redirect("/dashboard?tab=orders");
   }
-
-  // Verify payment with Kira-Pay before marking as paid
-  await verifyAndUpdateOrderPayment(params.orderId);
 
   const order = await getOrderById(params.orderId);
   const cartCount = await getCartCount();
@@ -72,6 +68,14 @@ export default async function OrderSuccessPage({ searchParams }: OrderSuccessPag
                   </Button>
                 </a>
               )}
+              <p className="text-xs sm:text-sm text-muted-foreground mb-3">
+                Payment status updates automatically via webhook. You can refresh if it’s delayed.
+              </p>
+              <Link href={`/order/success?orderId=${order.id}`}>
+                <Button variant="outline" className="w-full">
+                  Refresh Status
+                </Button>
+              </Link>
             </>
           )}
 

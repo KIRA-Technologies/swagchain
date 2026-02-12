@@ -73,6 +73,10 @@ export async function createPaymentLink(
         "x-api-key": KIRA_PAY_API_KEY,
       },
       body: JSON.stringify({
+        tokenOut: {
+          chainId: "8453",
+          address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+        },
         name: params.name,
         receiver,
         price: params.price,

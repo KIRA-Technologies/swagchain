@@ -12,8 +12,9 @@ interface KiraPayWebhookPayload {
     | "transaction.refund";
   data: {
     transactionId: string;
-    linkCode: string;
-    customOrderId: string;
+    code?: string;
+    linkCode?: string;
+    customOrderId?: string;
     amount: string;
     currency: string;
     sender: string;
@@ -34,14 +35,21 @@ function verifySignature(
     return true;
   }
 
+  console.log("getting here.....")
+
   const expectedSignature = crypto
     .createHmac("sha256", secret)
     .update(payload)
     .digest("hex");
 
+  console.log("expectedSignature....",expectedSignature)
   const signatureBuffer = Buffer.from(signature);
   const expectedBuffer = Buffer.from(expectedSignature);
+  console.log("signatureBuffer.........", signatureBuffer);
+  console.log("expectedBuffer..........", expectedBuffer);
+  
   if (signatureBuffer.length !== expectedBuffer.length) {
+    console.log("failing silently here....")
     return false;
   }
 
@@ -63,19 +71,33 @@ export async function POST(request: NextRequest) {
 
     const data: KiraPayWebhookPayload = JSON.parse(payload);
     console.log("[Webhook] Event:", data.event);
-    console.log("[Webhook] Order ID:", data.data.customOrderId);
 
-    const orderId = data.data.customOrderId;
+    const linkCode = data.data.code || data.data.linkCode;
+    const customOrderId = data.data.customOrderId;
+
+    console.log("[Webhook] Link code:", linkCode);
+    if (customOrderId) {
+      console.log("[Webhook] Custom order ID:", customOrderId);
+    }
 
     // Find the order
-    const order = await prisma.order.findUnique({
-      where: { id: orderId },
-    });
+    const order =
+      (linkCode
+        ? await prisma.order.findFirst({
+            where: { kiraPayLinkId: linkCode },
+          })
+        : null) ||
+      (customOrderId
+        ? await prisma.order.findFirst({
+            where: { id: customOrderId },
+          })
+        : null);
 
     if (!order) {
-      console.error("[Webhook] Order not found:", orderId);
+      console.error("[Webhook] Order not found for link code:", linkCode);
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
+    const orderId = order.id;
 
     // Handle different events
     switch (data.event) {
