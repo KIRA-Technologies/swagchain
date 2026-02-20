@@ -10,7 +10,34 @@ import Link from "next/link";
 
 function LoginForm() {
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/";
+
+  const getSafeCallbackUrl = () => {
+    const raw = searchParams.get("callbackUrl") || "/";
+
+    // Keep relative callback URLs as-is.
+    if (raw.startsWith("/")) {
+      return raw;
+    }
+
+    try {
+      const parsed = new URL(raw);
+      const isLocal =
+        parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1";
+
+      if (isLocal) {
+        return `${window.location.origin}${parsed.pathname}${parsed.search}${parsed.hash}`;
+      }
+
+      // Only allow callback URLs for the current origin.
+      if (parsed.origin === window.location.origin) {
+        return raw;
+      }
+    } catch {
+      return "/";
+    }
+
+    return "/";
+  };
 
   return (
     <Card className="border shadow-lg">
@@ -22,7 +49,7 @@ function LoginForm() {
       </CardHeader>
       <CardContent className="space-y-4">
         <Button
-          onClick={() => signIn("google", { callbackUrl })}
+          onClick={() => signIn("google", { callbackUrl: getSafeCallbackUrl() })}
           variant="outline"
           size="lg"
           className="w-full gap-3 hover:bg-muted"

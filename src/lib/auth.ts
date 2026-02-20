@@ -13,6 +13,29 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith("/")) {
+        return `${baseUrl}${url}`;
+      }
+
+      try {
+        const target = new URL(url);
+        const base = new URL(baseUrl);
+
+        if (target.origin === base.origin) {
+          return url;
+        }
+
+        // If a stale localhost callbackUrl leaks into production, keep only path/query/hash.
+        if (target.hostname === "localhost" || target.hostname === "127.0.0.1") {
+          return `${base.origin}${target.pathname}${target.search}${target.hash}`;
+        }
+      } catch {
+        return baseUrl;
+      }
+
+      return baseUrl;
+    },
     async session({ session, user }) {
       if (session.user) {
         session.user.id = user.id;
@@ -29,6 +52,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   pages: {
     signIn: "/login",
   },
+  trustHost: true,
   session: {
     strategy: "database",
   },
