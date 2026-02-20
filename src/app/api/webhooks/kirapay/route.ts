@@ -3,8 +3,13 @@ import prisma from "@/lib/prisma";
 import crypto from "crypto";
 
 const KIRA_PAY_WEBHOOK_SECRET = process.env.KIRA_PAY_WEBHOOK_SECRET || "";
+const SIGNATURE_HEADER = "x-kirapay-signature";
+const LEGACY_SIGNATURE_HEADER = "x-kira-signature";
+const TIMESTAMP_HEADER = "x-kirapay-timestamp";
+const TIMESTAMP_TOLERANCE_SECONDS = 5 * 60;
 
 interface KiraPayWebhookPayload {
+  type?: string;
   event:
     | "transaction.created"
     | "transaction.succeeded"
@@ -15,6 +20,7 @@ interface KiraPayWebhookPayload {
     code?: string;
     linkCode?: string;
     customOrderId?: string;
+    createdAt?: string;
     amount: string;
     currency: string;
     sender: string;
@@ -22,55 +28,120 @@ interface KiraPayWebhookPayload {
     status: string;
     settlementAmount?: string;
   };
-  timestamp: string;
+  timestamp?: string;
+  createdAt?: string;
+}
+
+function getWebhookEventDate(payload: KiraPayWebhookPayload): Date {
+  const dateCandidates = [
+    payload.timestamp,
+    payload.createdAt,
+    payload.data.createdAt,
+  ];
+
+  for (const value of dateCandidates) {
+    if (!value) continue;
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) return parsed;
+  }
+
+  return new Date();
 }
 
 function verifySignature(
   payload: string,
   signature: string,
-  secret: string
+  secret: string,
+  timestamp?: string
 ): boolean {
   if (!secret) {
     console.warn("[Webhook] No webhook secret configured, skipping verification");
     return true;
   }
 
-  console.log("getting here.....")
-
-  const expectedSignature = crypto
-    .createHmac("sha256", secret)
-    .update(payload)
-    .digest("hex");
-
-  console.log("expectedSignature....",expectedSignature)
-  const signatureBuffer = Buffer.from(signature);
-  const expectedBuffer = Buffer.from(expectedSignature);
-  console.log("signatureBuffer.........", signatureBuffer);
-  console.log("expectedBuffer..........", expectedBuffer);
-  
-  if (signatureBuffer.length !== expectedBuffer.length) {
-    console.log("failing silently here....")
+  if (!signature) {
+    console.error("[Webhook] Missing webhook signature header");
     return false;
   }
 
-  return crypto.timingSafeEqual(signatureBuffer, expectedBuffer);
+  const received = signature.startsWith("sha256=")
+    ? signature.slice(7)
+    : signature;
+
+  if (timestamp) {
+    const tsRaw = Number(timestamp);
+    if (!Number.isFinite(tsRaw)) {
+      console.error("[Webhook] Invalid webhook timestamp");
+      return false;
+    }
+    const tsSeconds =
+      tsRaw > 1e12 ? Math.floor(tsRaw / 1000) : Math.floor(tsRaw);
+    const now = Math.floor(Date.now() / 1000);
+    if (Math.abs(now - tsSeconds) > TIMESTAMP_TOLERANCE_SECONDS) {
+      console.error("[Webhook] Webhook timestamp outside tolerance");
+      return false;
+    }
+  }
+
+  const timingSafeMatch = (a: string, b: string) => {
+    const aBuf = Buffer.from(a);
+    const bBuf = Buffer.from(b);
+    if (aBuf.length !== bBuf.length) return false;
+    return crypto.timingSafeEqual(aBuf, bBuf);
+  };
+
+  const message = timestamp ? `${timestamp}.${payload}` : payload;
+  const expectedHex = crypto
+    .createHmac("sha256", secret)
+    .update(message)
+    .digest("hex");
+  const expectedBase64 = crypto
+    .createHmac("sha256", secret)
+    .update(message)
+    .digest("base64");
+
+  if (timingSafeMatch(received, expectedHex)) return true;
+  if (timingSafeMatch(received, expectedBase64)) return true;
+
+  if (timestamp) {
+    const legacyHex = crypto
+      .createHmac("sha256", secret)
+      .update(payload)
+      .digest("hex");
+    const legacyBase64 = crypto
+      .createHmac("sha256", secret)
+      .update(payload)
+      .digest("base64");
+    if (timingSafeMatch(received, legacyHex)) return true;
+    if (timingSafeMatch(received, legacyBase64)) return true;
+  }
+
+  return false;
 }
 
 export async function POST(request: NextRequest) {
   try {
     const payload = await request.text();
-    const signature = request.headers.get("x-kirapay-signature") || "";
+    const signature =
+      request.headers.get(SIGNATURE_HEADER) ||
+      request.headers.get(LEGACY_SIGNATURE_HEADER) ||
+      "";
+    const timestamp = request.headers.get(TIMESTAMP_HEADER) || "";
 
     console.log("[Webhook] Received Kira-Pay webhook");
 
     // Verify signature
-    if (KIRA_PAY_WEBHOOK_SECRET && !verifySignature(payload, signature, KIRA_PAY_WEBHOOK_SECRET)) {
+    if (
+      KIRA_PAY_WEBHOOK_SECRET &&
+      !verifySignature(payload, signature, KIRA_PAY_WEBHOOK_SECRET, timestamp)
+    ) {
       console.error("[Webhook] Invalid signature");
       return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
 
     const data: KiraPayWebhookPayload = JSON.parse(payload);
-    console.log("[Webhook] Event:", data.event);
+    const eventType = data.event || data.type;
+    console.log("[Webhook] Event:", eventType);
 
     const linkCode = data.data.code || data.data.linkCode;
     const customOrderId = data.data.customOrderId;
@@ -100,15 +171,16 @@ export async function POST(request: NextRequest) {
     const orderId = order.id;
 
     // Handle different events
-    switch (data.event) {
+    switch (eventType) {
       case "transaction.succeeded":
         console.log("[Webhook] Transaction succeeded for order:", orderId);
+        const paidAt = getWebhookEventDate(data);
 
         await prisma.order.update({
           where: { id: orderId },
           data: {
             status: "PAID",
-            paidAt: new Date(data.timestamp),
+            paidAt,
           },
         });
 
@@ -166,7 +238,7 @@ export async function POST(request: NextRequest) {
         break;
 
       default:
-        console.log("[Webhook] Unknown event:", data.event);
+        console.log("[Webhook] Unknown event:", eventType);
     }
 
     return NextResponse.json({ success: true });
