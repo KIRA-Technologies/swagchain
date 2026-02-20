@@ -7,7 +7,27 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 const createPrismaClient = () => {
-  const connectionString = process.env.DATABASE_URL;
+  const rawConnectionString = process.env.DATABASE_URL;
+  let connectionString = rawConnectionString;
+
+  if (rawConnectionString) {
+    try {
+      const url = new URL(rawConnectionString);
+      // pg-connection-string >= v2 treats sslmode aliases more strictly.
+      // Keep libpq-compatible behavior for managed providers like Supabase pooler.
+      if (
+        url.searchParams.get("sslmode") === "require" &&
+        !url.searchParams.has("uselibpqcompat")
+      ) {
+        url.searchParams.set("uselibpqcompat", "true");
+      }
+      connectionString = url.toString();
+    } catch {
+      // Keep the original string if URL parsing fails.
+      connectionString = rawConnectionString;
+    }
+  }
+
   const isSupabase = connectionString?.includes(".supabase.co");
 
   const pool = new pg.Pool({
