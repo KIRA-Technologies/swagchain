@@ -7,8 +7,16 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 const createPrismaClient = () => {
+  const connectionString = process.env.DATABASE_URL;
+  const isSupabase = connectionString?.includes(".supabase.co");
+
   const pool = new pg.Pool({
-    connectionString: process.env.DATABASE_URL,
+    connectionString,
+    // Supabase requires TLS from Vercel/serverless environments.
+    ssl: isSupabase ? { rejectUnauthorized: false } : undefined,
+    max: 5,
+    idleTimeoutMillis: 10_000,
+    connectionTimeoutMillis: 10_000,
   });
   const adapter = new PrismaPg(pool);
 
